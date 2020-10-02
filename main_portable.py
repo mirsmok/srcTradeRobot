@@ -1,6 +1,7 @@
 from XTBApi.api import Client
-import time, threading, requests, json
+import time, threading, requests, json, select, tty, termios,sys,os
 from datetime import datetime
+
 
 loopInterval=0.5
 totalProfit=0
@@ -18,12 +19,54 @@ buyProfit =0
 sellProfit = 0
 lastProfits={}
 passwords=''
+secondsForAnalisys=4
+tradeEnable=False
 def loadPass() :
     global passwords
     file = open('../../dump.txt', 'r')
     passwords=file.read()
     file.close()
 
+
+def printXY(message,x=2,y=0):
+    #store cursor
+    print('\033[s',end='')
+    #move to x y and print
+    print('\033[%d;%dH%s' % (x, y, message),end='')
+    #restore cursor
+    print('\033[u\033[1A')
+
+class NonBlockingConsole(object):
+
+    def __enter__(self):
+        self.old_settings = termios.tcgetattr(sys.stdin)
+        tty.setcbreak(sys.stdin.fileno())
+        return self
+
+    def __exit__(self, type, value, traceback):
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_settings)
+
+
+    def get_data(self):
+        if select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], []):
+            return sys.stdin.read(1)
+        return False
+def menageMenu():
+    CRED = '\033[91m'
+    CGREEN = '\033[92m'
+    CEND = '\033[0m'       
+    global tradeEnable
+    rows, columns = os.popen('stty size', 'r').read().split()
+    menuOptions='| Menu | \033[92mT\033[0mrade Enable | \033[92mB\033[0muy strop | \033[92mS\033[0mell Stop | \033[92mQ\033[0muit |'
+    printXY(menuOptions,1,1)    
+    c=nbc.get_data()
+    if c == 't' and not tradeEnable:
+        if not tradeEnable:
+            printXY(' >> Trade was enabled  <<',1,55)    
+            tradeEnable=True
+        else:
+            printXY(' >> Trade was disabled  <<',1,55)   
+            tradeEnable=False
 def pushbullet_message(title, body):
     global passwords
     creds=passwords.split(',')
@@ -65,6 +108,8 @@ def trade():
     global buyProfit
     global sellProfit 
     global lastProfits
+    global secondsForAnalisys
+    global tradeEnable
     CRED = '\033[91m'
     CGREEN = '\033[92m'
     CEND = '\033[0m'    
@@ -83,7 +128,6 @@ def trade():
         y.append( data['ask']) #randint(0,100))  # Add a new random value.
             
         # get trades and analize them
-        secondsForAnalisys=4
         if len(y) > secondsForAnalisys:
             priceGradient= sum([price-y[-secondsForAnalisys] for price in y[-(secondsForAnalisys-1):]  ]   )
             #priceGradient=priceGradient/(secondsForAnalisys/2)
@@ -123,13 +167,15 @@ def trade():
             lastProfits[trade]=actual_profit    
 
         # otwieranie tranzakcji  
-        if (not buy) and  (len(trade_ids) <2):
+        if (not buy) and  (len(trade_ids) <2 and tradeEnable):
             if priceGradient > (5.0*(data['ask']-data['bid'])):
                 client.open_trade('buy', "US100", volumen)#data['ask']-13,data['ask']+4)  
-        if (not sell) and  (len(trade_ids) <2):            
+        if (not sell) and  (len(trade_ids) <2 and tradeEnable):            
             if priceGradient < ((-5.0)*(data['ask']-data['bid'])):
                 client.open_trade('sell', "US100", volumen)#data['bid']+13,data['bid']-4)
-                # display info
+         
+    ########### display menu and info 
+        menageMenu()        
         if priceGradient > 5*(data['ask']-data['bid']):
             print('%s| priceGradient: % 6.2f  / % 6.2f %s' %( CGREEN, float(round(priceGradient,2)), round(5*(data['ask']-data['bid']),2) ,CEND),end='')  
         elif priceGradient < (-5*(data['ask']-data['bid'])):
@@ -175,7 +221,8 @@ def trade():
 loadPass()
 connectToXtb()
 while 1:    
-    trade()
+    with NonBlockingConsole() as nbc:
+        trade()
 
 
 

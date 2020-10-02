@@ -31,7 +31,6 @@ class NonBlockingConsole(object):
 CRED = '\033[91m'
 CGREEN = '\033[92m'
 CEND = '\033[0m'   
-print('\033[2J')
 menuOptions='| Menu | \033[92mT\033[0mrade Enable | \033[92mB\033[0muy strop | \033[92mS\033[0mell Stop | \033[92mQ\033[0muit |'
 printXY(menuOptions,1,1)
 with NonBlockingConsole() as nbc:
