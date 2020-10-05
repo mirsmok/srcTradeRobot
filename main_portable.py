@@ -21,6 +21,7 @@ lastProfits={}
 passwords=''
 secondsForAnalisys=4
 tradeEnable=False
+info=''
 def loadPass() :
     global passwords
     file = open('../../dump.txt', 'r')
@@ -56,22 +57,59 @@ def menageMenu():
     CGREEN = '\033[92m'
     CEND = '\033[0m'       
     global tradeEnable
+    global info
     rows, columns = os.popen('stty size', 'r').read().split()
-    menuOptions='| Menu | \033[92mT\033[0mrade Enable | \033[92mB\033[0muy strop | \033[92mS\033[0mell Stop | \033[92mQ\033[0muit |'
+    if tradeEnable :
+        menuTradeColor=CGREEN
+    else:
+        menuTradeColor=CRED
+    menuOptions='| Menu | ' + menuTradeColor+'Trade Enable \033[0m| \033[92mB\033[0muy strop | \033[92mS\033[0mell Stop | \033[92mQ\033[0muit |'
     printXY(menuOptions,1,1)    
     c=nbc.get_data()
-    if c == 't' and not tradeEnable:
-        if not tradeEnable:
-            printXY(' >> Trade was enabled  <<',1,55)    
-            tradeEnable=True
-        else:
-            printXY(' >> Trade was disabled  <<',1,55)   
-            tradeEnable=False
+    if c!=False:
+        if len(info)>10:
+            info=''
+        info=info+c
+    if c == 'g':
+        info=info[:-1]
+        if info == 't':
+            if not tradeEnable:
+                #printXY('>> Trade was enabled  <<',1,int(columns)-24)    
+                info='>> Trade was enabled  <<'
+                tradeEnable=True
+            else:
+               # printXY('>> Trade was disabled  <<',1,55)   
+                info='>> Trade was disabled  <<'
+                tradeEnable=False
+        if info == '\x1b' or info == 'q':  # x1b is ESC
+           # printXY('>> Quit <<',1,int(columns)-10)
+            info=' >> Quit <<'
+        #for c in menuOptions:
+            #if c.isprintable() :
+                #printableChars+=1
+    
+    print('\033[s',end='')
+    printableChars=len(menuOptions+info)-36
+    #move to x y and print
+    print('\033[%d;%dH%s' % (1, len(menuOptions)-36+1, info),end='')
+    for i in range(int(columns)-printableChars):
+        print(' ',end='')              
+    #move to x y and print
+    print('\033[%d;%dH' % (2, 1),end='')
+    for i in range(int(columns)):
+        print('-',end='')           
+#restore cursor  
+    print('\033[u\033[1A')  
+    if info==' >> Quit <<':    
+        time.sleep(3)
+        return False  
+  
+    return True
 def pushbullet_message(title, body):
     global passwords
     creds=passwords.split(',')
     msg = {"type": "note", "title": title, "body": body}
-    TOKEN = creds[2]
+    TOKEN = creds[2][:-1]#remove last end line sign
     resp = requests.post('https://api.pushbullet.com/v2/pushes', 
                         data=json.dumps(msg),
                         headers={'Authorization': 'Bearer ' + TOKEN,
@@ -89,6 +127,7 @@ def connectToXtb() :
         client.login(cred[0],cred[1])    
         tradeHistory=client.get_trades_history(datetime(datetime.now().year,datetime.now().month , datetime.now().day, 4, 0).timestamp()*1000,0)
         totalProfit = round(sum( [trade['profit'] for trade in tradeHistory]),2)
+        pushbullet_message("Trade robot working!",'Start balace: ' + str(totalProfit) +'PLN')
 
 
 
@@ -174,8 +213,7 @@ def trade():
             if priceGradient < ((-5.0)*(data['ask']-data['bid'])):
                 client.open_trade('sell', "US100", volumen)#data['bid']+13,data['bid']-4)
          
-    ########### display menu and info 
-        menageMenu()        
+    ########### display menu and info  
         if priceGradient > 5*(data['ask']-data['bid']):
             print('%s| priceGradient: % 6.2f  / % 6.2f %s' %( CGREEN, float(round(priceGradient,2)), round(5*(data['ask']-data['bid']),2) ,CEND),end='')  
         elif priceGradient < (-5*(data['ask']-data['bid'])):
@@ -202,7 +240,9 @@ def trade():
         if totalProfit >=0:
             print("%s| Day profit: % 6.2f %s" % (CGREEN, totalProfit, CEND))
         else:
-            print("%s| Day profit: % 6.2f  %s" % (CRED, totalProfit, CEND))    
+            print("%s| Day profit: % 6.2f  %s" % (CRED, totalProfit, CEND))   
+        if not menageMenu():
+            return False
 
     #send push notification
     if cyclesToSendInfo > 0:
@@ -214,6 +254,7 @@ def trade():
             title="Wynik: "+str(tradeHistory[0]['profit']) + " PLN"
             message="Dzienny zysk: " + str(totalProfit) + " PLN"
             pushbullet_message(title,message)    
+    return True
 
     
 #def loop():
@@ -222,7 +263,8 @@ loadPass()
 connectToXtb()
 while 1:    
     with NonBlockingConsole() as nbc:
-        trade()
+        if not trade():
+            break
 
 
 
