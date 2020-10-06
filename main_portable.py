@@ -227,17 +227,17 @@ def trade():
             
         if buy:
             if buyProfit>=0:
-                print("%s| Buy: % 6.2f %s" % (CGREEN,float(buyProfit),CEND),end='')
+                print("%s| B: % 6.2f %s" % (CGREEN,float(buyProfit),CEND),end='')
             else:
-                print("%s| Buy: % 6.2f %s" %(CRED,buyProfit,CEND),end='')    
+                print("%s| B: % 6.2f %s" %(CRED,buyProfit,CEND),end='')    
         else:
-                print("| Buy: % 6.2f " % (float(buyProfit)),end='')
+                print("| B: % 6.2f " % (float(buyProfit)),end='')
             
         if sell:    
             if sellProfit >=0:
-                print("%s| Sell: % 6.2f %s" % (CGREEN,sellProfit,CEND),end='')
+                print("%s| S: % 6.2f %s" % (CGREEN,sellProfit,CEND),end='')
             else:
-                print("%s| Sell: % 6.2f %s" % (CRED ,sellProfit, CEND),end='')
+                print("%s| S: % 6.2f %s" % (CRED ,sellProfit, CEND),end='')
         else:
                 print("| Sell: % 6.2f " % (sellProfit),end='')
                 
