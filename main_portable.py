@@ -63,7 +63,7 @@ def menageMenu():
         menuTradeColor=CGREEN
     else:
         menuTradeColor=CRED
-    menuOptions='| Menu | ' + menuTradeColor+'Trade Enable \033[0m| \033[92mB\033[0muy strop | \033[92mS\033[0mell Stop | \033[92mQ\033[0muit |'
+    menuOptions='| Menu | ' + menuTradeColor+'Trade \033[0m| \033[92mB\033[0muy | \033[92mS\033[0mell | \033[92mQ\033[0muit |'
     printXY(menuOptions,1,1)    
     c=nbc.get_data()
     if c!=False:
@@ -219,32 +219,32 @@ def trade():
          
     ########### display menu and info  
         if priceGradient > 8*(data['ask']-data['bid']):
-            print('%s| priceGradient: % 6.2f  / % 6.2f %s' %( CGREEN, float(round(priceGradient,2)), round(8*(data['ask']-data['bid']),2) ,CEND),end='')  
+            print('%s|% 6.2f  / % 6.2f %s' %( CGREEN, float(round(priceGradient,2)), round(8*(data['ask']-data['bid']),2) ,CEND),end='')  
         elif priceGradient < (-8*(data['ask']-data['bid'])):
-            print('%s| priceGradient: % 6.2f  / % 6.2f %s' %( CRED, float(round(priceGradient,2)), round(8*(data['ask']-data['bid']),2) ,CEND),end='')  
+            print('%s|% 6.2f  / % 6.2f %s' %( CRED, float(round(priceGradient,2)), round(8*(data['ask']-data['bid']),2) ,CEND),end='')  
         else:
-            print('| priceGradient: % 6.2f  / % 6.2f ' %( float(round(priceGradient,2)), round(8*(data['ask']-data['bid']),2) ),end='')  
+            print('|% 6.2f  / % 6.2f ' %( float(round(priceGradient,2)), round(8*(data['ask']-data['bid']),2) ),end='')  
             
         if buy:
             if buyProfit>=0:
-                print("%s| Buy profit: % 6.2f %s" % (CGREEN,float(buyProfit),CEND),end='')
+                print("%s| Buy: % 6.2f %s" % (CGREEN,float(buyProfit),CEND),end='')
             else:
-                print("%s| Buy profit: % 6.2f %s" %(CRED,buyProfit,CEND),end='')    
+                print("%s| Buy: % 6.2f %s" %(CRED,buyProfit,CEND),end='')    
         else:
-                print("| Buy profit: % 6.2f " % (float(buyProfit)),end='')
+                print("| Buy: % 6.2f " % (float(buyProfit)),end='')
             
         if sell:    
             if sellProfit >=0:
-                print("%s| Sell profit: % 6.2f %s" % (CGREEN,sellProfit,CEND),end='')
+                print("%s| Sell: % 6.2f %s" % (CGREEN,sellProfit,CEND),end='')
             else:
-                print("%s| Sell profit: % 6.2f %s" % (CRED ,sellProfit, CEND),end='')
+                print("%s| Sell: % 6.2f %s" % (CRED ,sellProfit, CEND),end='')
         else:
-                print("| Sell profit: % 6.2f " % (sellProfit),end='')
+                print("| Sell: % 6.2f " % (sellProfit),end='')
                 
         if totalProfit >=0:
-            print("%s| Day profit: % 6.2f %s" % (CGREEN, totalProfit, CEND))
+            print("| %sDay: % 6.2f %s" % (CGREEN, totalProfit, CEND))
         else:
-            print("%s| Day profit: % 6.2f  %s" % (CRED, totalProfit, CEND))   
+            print("| %sDay: % 6.2f  %s" % (CRED, totalProfit, CEND))   
         if not menageMenu():
             return False
 
