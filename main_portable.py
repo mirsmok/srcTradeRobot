@@ -218,12 +218,12 @@ def trade():
                 client.open_trade('sell', "US100", volumen,data['bid']+20,data['bid']-10)
          
     ########### display menu and info  
-        if priceGradient > 5*(data['ask']-data['bid']):
-            print('%s| priceGradient: % 6.2f  / % 6.2f %s' %( CGREEN, float(round(priceGradient,2)), round(5*(data['ask']-data['bid']),2) ,CEND),end='')  
-        elif priceGradient < (-5*(data['ask']-data['bid'])):
-            print('%s| priceGradient: % 6.2f  / % 6.2f %s' %( CRED, float(round(priceGradient,2)), round(5*(data['ask']-data['bid']),2) ,CEND),end='')  
+        if priceGradient > 8*(data['ask']-data['bid']):
+            print('%s| priceGradient: % 6.2f  / % 6.2f %s' %( CGREEN, float(round(priceGradient,2)), round(8*(data['ask']-data['bid']),2) ,CEND),end='')  
+        elif priceGradient < (-8*(data['ask']-data['bid'])):
+            print('%s| priceGradient: % 6.2f  / % 6.2f %s' %( CRED, float(round(priceGradient,2)), round(8*(data['ask']-data['bid']),2) ,CEND),end='')  
         else:
-            print('| priceGradient: % 6.2f  / % 6.2f ' %( float(round(priceGradient,2)), round(5*(data['ask']-data['bid']),2) ),end='')  
+            print('| priceGradient: % 6.2f  / % 6.2f ' %( float(round(priceGradient,2)), round(8*(data['ask']-data['bid']),2) ),end='')  
             
         if buy:
             if buyProfit>=0:
