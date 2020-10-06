@@ -19,7 +19,7 @@ buyProfit =0
 sellProfit = 0
 lastProfits={}
 passwords=''
-secondsForAnalisys=4
+secondsForAnalisys=3
 tradeEnable=False
 info=''
 def loadPass() :
@@ -175,8 +175,12 @@ def trade():
         buy= False
         sell= False     
         for trade in trade_ids:
-            actual_profit = client.get_trade_profit(trade) # CHECK PROFIT
-            transaktionMode = client.trade_rec[trade].mode
+            try:
+                actual_profit =  client.get_trade_profit(trade) # CHECK PROFIT
+                transaktionMode = client.trade_rec[trade].mode
+            except:
+                actual_profit=0
+                transaktionMode=''
             buy= transaktionMode == "buy" or buy
             sell= transaktionMode == "sell" or sell 
             #buy display
@@ -196,22 +200,22 @@ def trade():
                 #else:
                 #    print(CRED+"Sell profit: "+ str(actual_profit)+CEND)'''
                          
-            #close transaction 
-            if trade in lastProfits.keys():
-                if ((actual_profit >= TP) and (actual_profit < lastProfits[trade])) or actual_profit <= SL :
-                    client.close_trade(trade) # CLOSE TRADE    
-                    cyclesToSendInfo=5
-                    lastProfits
+            ##close transaction 
+            #if trade in lastProfits.keys():
+                #if ((actual_profit >= TP) and (actual_profit < lastProfits[trade])) or actual_profit <= SL :
+                    #client.close_trade(trade) # CLOSE TRADE    
+                    #cyclesToSendInfo=5
+                    #lastProfits
             
             lastProfits[trade]=actual_profit    
 
         # otwieranie tranzakcji  
-        if (not buy) and  (len(trade_ids) <2 and tradeEnable):
-            if priceGradient > (5.0*(data['ask']-data['bid'])):
-                client.open_trade('buy', "US100", volumen)#data['ask']-13,data['ask']+4)  
-        if (not sell) and  (len(trade_ids) <2 and tradeEnable):            
-            if priceGradient < ((-5.0)*(data['ask']-data['bid'])):
-                client.open_trade('sell', "US100", volumen)#data['bid']+13,data['bid']-4)
+        if (not buy) and  (len(trade_ids) <1 and tradeEnable):
+            if priceGradient > (8.0*(data['ask']-data['bid'])):
+                client.open_trade('buy', "US100", volumen,data['ask']-20,data['ask']+10)  
+        if (not sell) and  (len(trade_ids) <1 and tradeEnable):            
+            if priceGradient < ((-8.0)*(data['ask']-data['bid'])):
+                client.open_trade('sell', "US100", volumen,data['bid']+20,data['bid']-10)
          
     ########### display menu and info  
         if priceGradient > 5*(data['ask']-data['bid']):
