@@ -6,7 +6,7 @@ from datetime import datetime
 loopInterval=0.5
 totalProfit=0
 client = Client()
-cyclesToSendInfo=0
+cyclesToSendInfo=900
 buy=False
 sell=False
 TP = 10
@@ -64,7 +64,7 @@ def menageMenu():
     else:
         menuTradeColor=CRED
     menuOptions='| Menu | ' + menuTradeColor+'Trade \033[0m| \033[92mB\033[0muy | \033[92mS\033[0mell | \033[92mQ\033[0muit |'
-    printXY(menuOptions,1,1)    
+    printXY(menuOptions,int(rows),1)    
     c=nbc.get_data()
     if c!=False:
         if len(info)>10:
@@ -75,11 +75,11 @@ def menageMenu():
         if info == 't':
             if not tradeEnable:
                 #printXY('>> Trade was enabled  <<',1,int(columns)-24)    
-                info='>> Trade was enabled  <<'
+                info='>> Trade ON <<'
                 tradeEnable=True
             else:
                # printXY('>> Trade was disabled  <<',1,55)   
-                info='>> Trade was disabled  <<'
+                info='>> Trade OFF <<'
                 tradeEnable=False
         if info == '\x1b' or info == 'q':  # x1b is ESC
            # printXY('>> Quit <<',1,int(columns)-10)
@@ -91,7 +91,7 @@ def menageMenu():
     print('\033[s',end='')
     printableChars=len(menuOptions+info)-36
     #move to x y and print
-    print('\033[%d;%dH%s' % (1, len(menuOptions)-36+1, info),end='')
+    print('\033[%d;%dH%s' % (int(rows), len(menuOptions)-36+1, info),end='')
     for i in range(int(columns)-printableChars):
         print(' ',end='')              
     #move to x y and print
